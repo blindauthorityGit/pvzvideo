@@ -29,22 +29,6 @@ export default function ActiveVideoPage() {
         if (activeVideo && videoRef.current) {
             videoRef.current.play();
             videoRef.current.loop = true; // Ensure the video loops
-            videoRef.current.muted = false; // Unmute if desired
-
-            // Request fullscreen mode
-            const requestFullscreen = () => {
-                if (videoRef.current.requestFullscreen) {
-                    videoRef.current.requestFullscreen();
-                } else if (videoRef.current.webkitRequestFullscreen) {
-                    // Safari
-                    videoRef.current.webkitRequestFullscreen();
-                } else if (videoRef.current.msRequestFullscreen) {
-                    // IE11
-                    videoRef.current.msRequestFullscreen();
-                }
-            };
-
-            requestFullscreen();
         }
     }, [activeVideo]);
 
@@ -57,7 +41,7 @@ export default function ActiveVideoPage() {
                     controls
                     autoPlay
                     loop
-                    muted // Mute to ensure autoplay works across browsers
+                    muted // This helps with autoplay in modern browsers
                     width="100%"
                     className="mt-4"
                 />
