@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Link from "next/link";
 
 export default function VideoUpload() {
     const [videoFile, setVideoFile] = useState(null);
@@ -7,7 +8,26 @@ export default function VideoUpload() {
     const [message, setMessage] = useState("");
 
     const handleFileChange = (event) => {
-        setVideoFile(event.target.files[0]);
+        const file = event.target.files[0];
+        if (file) {
+            // Check if the file is a video
+            if (!file.type.startsWith("video/")) {
+                setMessage("Please select a valid video file.");
+                setVideoFile(null);
+                return;
+            }
+
+            // Check if the file size is under 400MB
+            const maxSizeInMB = 400;
+            if (file.size > maxSizeInMB * 1024 * 1024) {
+                setMessage("File size must be under 400MB.");
+                setVideoFile(null);
+                return;
+            }
+
+            setVideoFile(file);
+            setMessage("");
+        }
     };
 
     const handleSubmit = async (event) => {
@@ -54,6 +74,7 @@ export default function VideoUpload() {
                 <h1 className="text-2xl font-semibold mb-4 text-center">Upload File</h1>
                 <input
                     type="file"
+                    accept="video/*" // This restricts the file selection to video files
                     onChange={handleFileChange}
                     className="mb-4 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                 />
@@ -101,6 +122,9 @@ export default function VideoUpload() {
                     </p>
                 )}
             </form>
+            <Link href="/dashboard" className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
+                Zurück
+            </Link>
         </div>
     );
 }

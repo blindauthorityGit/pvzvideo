@@ -3,10 +3,21 @@ import { storage, ref, listAll, getDownloadURL } from "../../firebase";
 import Link from "next/link";
 import { doc, setDoc } from "firebase/firestore/lite";
 import { db } from "../../firebase";
+import { useRouter } from "next/router";
 
 export default function Dashboard() {
     const [videos, setVideos] = useState([]);
     const [activeVideo, setActiveVideo] = useState(null);
+
+    const router = useRouter();
+
+    useEffect(() => {
+        const authenticated = localStorage.getItem("authenticated");
+
+        if (!authenticated) {
+            router.push("/login"); // Redirect to login if not authenticated
+        }
+    }, [router]);
 
     // Fetch videos from Firebase Storage
     useEffect(() => {
@@ -60,7 +71,7 @@ export default function Dashboard() {
     return (
         <div className="p-8">
             <h1 className="text-3xl font-bold mb-4">Video Selection</h1>
-            <Link href="/upload" className="bg-blue-500 text-white py-2 px-4 rounded mb-4 inline-block">
+            <Link href="/dashboard/upload" className="bg-blue-500 text-white py-2 px-4 rounded mb-4 inline-block">
                 Upload Video
             </Link>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
