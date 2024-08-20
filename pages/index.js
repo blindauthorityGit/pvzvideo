@@ -1,50 +1,48 @@
-import { useState, useEffect, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore/lite";
-import { db } from "../firebase";
+import { db } from "../../firebase";
 
-export default function ActiveVideoPage() {
-    const [activeVideo, setActiveVideo] = useState(null);
-    const videoRef = useRef(null);
+export async function getServerSideProps() {
+    try {
+        const activeVideoRef = doc(db, "settings", "activeVideo");
+        const activeVideoSnap = await getDoc(activeVideoRef);
 
-    useEffect(() => {
-        const fetchActiveVideo = async () => {
-            try {
-                const activeVideoRef = doc(db, "settings", "activeVideo");
-                const activeVideoSnap = await getDoc(activeVideoRef);
+        if (activeVideoSnap.exists()) {
+            const activeVideoData = activeVideoSnap.data();
 
-                if (activeVideoSnap.exists()) {
-                    setActiveVideo(activeVideoSnap.data());
-                } else {
-                    console.log("No active video found");
-                }
-            } catch (error) {
-                console.error("Error fetching active video:", error);
+            // Convert the date object (or any other non-serializable data) to a string
+            if (activeVideoData.date) {
+                activeVideoData.date = activeVideoData.date.toDate().toISOString();
             }
-        };
 
-        fetchActiveVideo();
-    }, []);
-
-    useEffect(() => {
-        if (activeVideo && videoRef.current) {
-            videoRef.current.play();
-            videoRef.current.loop = true; // Ensure the video loops
+            return {
+                props: {
+                    activeVideo: activeVideoData,
+                },
+            };
+        } else {
+            return {
+                props: {
+                    activeVideo: null,
+                },
+            };
         }
-    }, [activeVideo]);
+    } catch (error) {
+        console.error("Error fetching active video:", error);
+        return {
+            props: {
+                activeVideo: null,
+            },
+        };
+    }
+}
 
+export default function NoJS({ activeVideo }) {
     return (
-        <div className="p-0">
+        <div style={{ padding: 0 }}>
             {activeVideo ? (
-                <video
-                    ref={videoRef}
-                    src={activeVideo.url}
-                    controls
-                    autoPlay
-                    loop
-                    muted // This helps with autoplay in modern browsers
-                    width="100%"
-                    className="mt-4"
-                />
+                <video src={activeVideo.url} controls autoPlay loop muted width="100%" style={{ marginTop: "16px" }}>
+                    Your browser does not support the video tag.
+                </video>
             ) : (
                 <p>No active video is currently set.</p>
             )}
