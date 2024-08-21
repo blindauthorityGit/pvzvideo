@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
+import { storage } from "../../../firebase"; // Adjust the path according to your project structure
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default function VideoUpload() {
     const [videoFile, setVideoFile] = useState(null);
@@ -30,9 +32,7 @@ export default function VideoUpload() {
         }
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
+    const handleUpload = () => {
         if (!videoFile) {
             setMessage("Please select a file to upload.");
             return;
@@ -42,44 +42,41 @@ export default function VideoUpload() {
         setUploadProgress(0);
         setMessage("");
 
-        try {
-            const response = await fetch("../api/upload", {
-                method: "POST",
-                headers: {
-                    "file-name": videoFile.name, // Set the file name in the header
-                    "content-type": videoFile.type, // Set the correct MIME type in the header
-                },
-                body: videoFile,
-            });
+        const storageRef = ref(storage, `videos/${videoFile.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, videoFile);
 
-            if (!response.ok) throw new Error("Upload failed");
-
-            const result = await response.json();
-
-            if (result.url) {
-                setMessage(`File uploaded successfully: ${videoFile.name}`);
-            } else {
-                throw new Error("Failed to get the uploaded file URL.");
+        uploadTask.on(
+            "state_changed",
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setUploadProgress(progress);
+            },
+            (error) => {
+                setUploading(false);
+                setMessage("Error uploading file: " + error.message);
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                    setMessage(`File uploaded successfully: ${videoFile.name}`);
+                    console.log("File available at", downloadURL);
+                    setUploading(false);
+                });
             }
-        } catch (error) {
-            setMessage("Error uploading file: " + error.message);
-        } finally {
-            setUploading(false);
-        }
+        );
     };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-80">
+            <div className="bg-white p-8 rounded-lg shadow-md w-80">
                 <h1 className="text-2xl font-semibold mb-4 text-center">Upload File</h1>
                 <input
                     type="file"
-                    accept="video/*" // This restricts the file selection to video files
+                    accept="video/*"
                     onChange={handleFileChange}
                     className="mb-4 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
                 />
                 <button
-                    type="submit"
+                    onClick={handleUpload}
                     className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none flex justify-center items-center"
                     disabled={uploading}
                 >
@@ -121,7 +118,7 @@ export default function VideoUpload() {
                         {message}
                     </p>
                 )}
-            </form>
+            </div>
             <Link href="/dashboard" className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
                 Zurück
             </Link>
