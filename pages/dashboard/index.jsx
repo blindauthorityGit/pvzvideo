@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { storage, ref, listAll, getDownloadURL } from "../../firebase";
+import { storage, ref, listAll, getDownloadURL, deleteObject } from "../../firebase";
 import Link from "next/link";
 import { doc, setDoc } from "firebase/firestore/lite";
 import { db } from "../../firebase";
@@ -30,6 +30,7 @@ export default function Dashboard() {
                 for (const itemRef of res.items) {
                     const url = await getDownloadURL(itemRef);
                     videoList.push({
+                        id: itemRef.name, // Use the file name as an ID
                         name: itemRef.name,
                         url: url,
                         date: new Date(), // Placeholder for upload date; consider storing this in Firestore if needed
@@ -60,6 +61,39 @@ export default function Dashboard() {
         }
     };
 
+    // Function to delete a video
+    const handleDeleteVideo = async (video) => {
+        const confirmDelete = confirm(`Are you sure you want to delete the video "${video.name}"?`);
+        if (!confirmDelete) return;
+        console.log(video.id);
+
+        try {
+            const response = await fetch("/api/delete", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id: video.id }),
+            });
+
+            if (response.ok) {
+                // Remove video from UI after successful deletion
+                setVideos(videos.filter((v) => v.id !== video.id));
+
+                if (activeVideo?.id === video.id) {
+                    setActiveVideo(null); // Clear active video if it's the one being deleted
+                }
+
+                console.log(`Video "${video.name}" deleted successfully.`);
+            } else {
+                const data = await response.json();
+                console.error(`Failed to delete video: ${data.message}`);
+            }
+        } catch (error) {
+            console.error("Error deleting video:", error);
+        }
+    };
+
     // Load the "Aktiv" video from localStorage on component mount
     useEffect(() => {
         const savedVideo = localStorage.getItem("activeVideo");
@@ -87,6 +121,12 @@ export default function Dashboard() {
                             }`}
                         >
                             {activeVideo?.url === video.url ? "Aktiv" : "Set as Aktiv"}
+                        </button>
+                        <button
+                            onClick={() => handleDeleteVideo(video)}
+                            className="mt-2 py-1 px-3 rounded bg-red-500 text-white ml-2"
+                        >
+                            Delete
                         </button>
                     </div>
                 ))}
