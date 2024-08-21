@@ -24,8 +24,8 @@ export default function Login() {
             <form onSubmit={handleLogin} className="bg-white p-8 rounded-lg shadow-md w-80">
                 <h1 className="text-2xl font-semibold mb-4 text-center">Login</h1>
                 <input
-                    type="email"
-                    placeholder="Email"
+                    type="text"
+                    placeholder="User"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="mb-4 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
