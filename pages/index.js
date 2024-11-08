@@ -40,7 +40,15 @@ export default function NoJS({ activeVideo }) {
     return (
         <div style={{ padding: 0 }}>
             {activeVideo ? (
-                <video src={activeVideo.url} controls autoPlay loop muted width="100%" style={{ marginTop: "16px" }}>
+                <video
+                    src={"https://atelierbuchner.at/pvz/video.mp4"}
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    width="100%"
+                    style={{ marginTop: "16px" }}
+                >
                     Your browser does not support the video tag.
                 </video>
             ) : (
