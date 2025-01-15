@@ -1,4 +1,4 @@
- import { doc, getDoc } from "firebase/firestore/lite";
+import { doc, getDoc } from "firebase/firestore/lite";
 import { db } from "../firebase";
 
 export async function getServerSideProps() {
@@ -41,7 +41,7 @@ export default function NoJS({ activeVideo }) {
         <div style={{ padding: 0 }}>
             {activeVideo ? (
                 <video
-                    src={"https://atelierbuchner.at/pvz/WartezimmerTV.mp4"}
+                    src={"https://atelierbuchner.at/pvz/WartezimmerTV2025.mp4"}
                     controls
                     autoPlay
                     loop
