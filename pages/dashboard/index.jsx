@@ -56,6 +56,19 @@ export default function Dashboard() {
                 date: video.date,
             });
             setActiveVideo(video); // Update local state as well
+
+            // Call the API to send an email notification
+            await fetch("/api/sendActiveVideoEmail", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: video.name,
+                    url: video.url,
+                    date: video.date,
+                }),
+            });
         } catch (error) {
             console.error("Error setting active video:", error);
         }
