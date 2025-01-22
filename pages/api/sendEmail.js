@@ -15,14 +15,15 @@ export default async function handler(req, res) {
                 pass: process.env.NEXT_W4YPASSWORD,
             },
         });
-
         const mailOptions = {
             from: '"Active Video Notification" <office@atelierbuchner.at>',
-            to: "your-email@example.com", // Replace with your email
-            subject: "Active Video Updated",
-            text: `The video "${name}" has been set as active on ${date}. Watch it here: ${url}`,
-            html: `<p>The video "<strong>${name}</strong>" has been set as active on ${date}.</p>
-             <p>Watch it here: <a href="${url}">${url}</a></p>`,
+            to: "office@atelierbuchner.at",
+            subject: "New Active Video Notification",
+            text: `Hi,\n\nThe video "${name}" has been set as active on ${date}. You can watch it here: ${url}\n\nRegards,\nYour App`,
+            html: `<p>Hi,</p>
+                   <p>The video "<strong>${name}</strong>" has been set as active on ${date}.</p>
+                   <p>You can watch it here: <a href="${url}">${url}</a></p>
+                   <p>Regards,<br/>Your App</p>`,
         };
 
         try {

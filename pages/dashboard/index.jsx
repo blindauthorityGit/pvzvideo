@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { storage, ref, listAll, getDownloadURL, deleteObject } from "../../firebase";
 import Link from "next/link";
-import { doc, setDoc } from "firebase/firestore/lite";
+import { doc, setDoc, getDoc } from "firebase/firestore/lite";
 import { db } from "../../firebase";
 import { useRouter } from "next/router";
 
@@ -45,6 +45,24 @@ export default function Dashboard() {
         fetchVideos();
     }, []);
 
+    useEffect(() => {
+        const fetchActiveVideo = async () => {
+            try {
+                const activeVideoRef = doc(db, "settings", "activeVideo");
+                const docSnap = await getDoc(activeVideoRef);
+                if (docSnap.exists()) {
+                    setActiveVideo(docSnap.data());
+                } else {
+                    console.log("No active video found in Firestore.");
+                }
+            } catch (error) {
+                console.error("Error fetching active video from Firestore:", error);
+            }
+        };
+
+        fetchActiveVideo();
+    }, []);
+
     // Function to set a video as "Aktiv"
     const handleSetActiveVideo = async (video) => {
         try {
@@ -57,8 +75,10 @@ export default function Dashboard() {
             });
             setActiveVideo(video); // Update local state as well
 
+            console.log("video aktiv gesetzt");
+
             // Call the API to send an email notification
-            await fetch("/api/sendActiveVideoEmail", {
+            await fetch("/api/sendEmail", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
