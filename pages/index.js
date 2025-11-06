@@ -41,7 +41,7 @@ export default function NoJS({ activeVideo }) {
         <div style={{ padding: 0 }}>
             {activeVideo ? (
                 <video
-                    src={"https://atelierbuchner.at/pvz/WartezimmerTV211025.mp4"}
+                    src={"https://atelierbuchner.at/pvz/WartezimmerTV061125.mp4"}
                     controls
                     autoPlay
                     loop
